@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serlimar Mosaic</title>
+<link rel="preconnect" href="https://146953798.fs1.hubspotusercontent-eu1.net">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f8f8f8;
+    overflow: hidden;
+  }
+
+  #mosaic {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    padding: 6px;
+    width: 100%;
+  }
+
+  @media (max-width: 400px) {
+    #mosaic { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (max-width: 280px) {
+    #mosaic { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .tile {
+    aspect-ratio: 1;
+    overflow: hidden;
+    opacity: 0;
+    touch-action: manipulation;
+  }
+
+  .tile.visible {
+    transition: opacity 0.65s ease-out;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile { opacity: 1 !important; transition: none !important; }
+  }
+
+  .tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div id="mosaic"></div>
+
+<script>
+const photos = [
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-1.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-2.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-3.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-4.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-5.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-6.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-7.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-8.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-9.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-10.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-11.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-12.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-13.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-14.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-15.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-16.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-17.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-18.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-19.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-20.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-21.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-22.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-23.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-24.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-25.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-26.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-27.jpg",
+  "https://146953798.fs1.hubspotusercontent-eu1.net/hubfs/146953798/mosaico-28.jpg"
+];
+
+const mosaic = document.getElementById('mosaic');
+
+photos.forEach((src, i) => {
+  const tile = document.createElement('div');
+  tile.className = 'tile';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = 'Persona del equipo Serlimar';
+  img.width = 200;
+  img.height = 200;
+  img.draggable = false;
+  if (i >= 7) img.loading = 'lazy';
+
+  tile.appendChild(img);
+  mosaic.appendChild(tile);
+});
+
+const tiles = Array.from(document.querySelectorAll('.tile'));
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (!prefersReduced) {
+  const indices = tiles.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  indices.forEach((tileIndex, slot) => {
+    setTimeout(() => {
+      tiles[tileIndex].classList.add('visible');
+    }, slot * 90);
+  });
+}
+
+function sendHeight() {
+  const h = document.getElementById('mosaic').scrollHeight + 12;
+  window.parent.postMessage({ type: 'srlm-height', height: h }, '*');
+}
+window.addEventListener('load', sendHeight);
+window.addEventListener('resize', sendHeight);
+</script>
+</body>
+</html>
